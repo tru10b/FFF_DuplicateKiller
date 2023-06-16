@@ -1,4 +1,4 @@
-package org.fff;
+package org.fff.duplicatekiller;
 
 public class Main {
     public static void main(String[] args) {
