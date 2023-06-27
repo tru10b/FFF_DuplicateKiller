@@ -7,6 +7,7 @@ import org.apache.commons.imaging.common.ImageMetadata;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public final class MetadataUtils {
 
@@ -69,16 +70,31 @@ public final class MetadataUtils {
 
     }
 
-    public static Boolean isEqualMetadata(HashMap<String, String> meta1, HashMap<String, String> meta2) {
-        if (!meta1.keySet().equals(meta2.keySet())) {
-            return false;
-        }
-        for (String key :
-                meta1.keySet()) {
-            if (!meta1.get(key).equals(meta2.get(key))) {
-                return false;
+    public static void proceedFile(File file, List<MetadataParsed> uniqueList,
+                                   List<MetadataParsed> duplicateList) {
+        if (!file.isDirectory()) {
+            String metaData = getMetadataToString(file);
+
+            if (!metaData.equals("EXIF metadata is absent")) {
+                MetadataParsed temp = new MetadataParsed(file.getAbsolutePath(), parse(metaData));
+
+                if (uniqueList.size() == 0) {
+                    uniqueList.add(temp);
+                } else {
+                    boolean isUnique = true;
+                    for (MetadataParsed tempMetadataParsed :
+                            uniqueList) {
+                        if (tempMetadataParsed.metaParsed.equals(temp.metaParsed)) {
+                            duplicateList.add(temp);
+                            isUnique = false;
+                            break;
+                        }
+                    }
+                    if (isUnique) {
+                        uniqueList.add(temp);
+                    }
+                }
             }
         }
-        return true;
     }
 }
