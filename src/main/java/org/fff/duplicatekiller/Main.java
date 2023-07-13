@@ -1,7 +1,5 @@
 package org.fff.duplicatekiller;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -24,6 +24,7 @@ public class Main {
         } else {
             String pathName = args[0];
             List<MetadataParsed> uniqueList, fullList, duplicateList;
+            Set<String> uniquePath;
 
             try (Stream<Path> paths = Files.walk(Paths.get(pathName))) {
                 fullList = paths.
@@ -37,8 +38,11 @@ public class Main {
                             return null;
                         }).
                         filter(Objects::nonNull).toList();
-                uniqueList = fullList.parallelStream().unordered().distinct().toList();
-                duplicateList = (List<MetadataParsed>) CollectionUtils.subtract(fullList, uniqueList);
+                uniqueList = fullList.stream().parallel().unordered().distinct().toList();
+                uniquePath = uniqueList.stream().parallel().
+                        map(metadataParsed -> metadataParsed.filePath).collect(Collectors.toSet());
+                duplicateList = fullList.stream().parallel().
+                        filter(metadataParsed -> !uniquePath.contains(metadataParsed.filePath)).toList();
 
                 System.out.println("Обнаружено дубликатов:");
                 System.out.println(duplicateList.size());
