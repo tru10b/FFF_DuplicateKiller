@@ -2,6 +2,7 @@
 package org.fff.duplicatekiller;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class MetadataParsed {
 
@@ -13,5 +14,17 @@ public class MetadataParsed {
         this.filePath = filePath;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetadataParsed that = (MetadataParsed) o;
+        return metaParsed.equals(that.metaParsed);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(metaParsed);
+    }
 }
 
